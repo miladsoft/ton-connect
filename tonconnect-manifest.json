@@ -1,0 +1,9 @@
+{
+    "name": "TonConnect",
+    "description": "This is a sample decentralized application using TonConnect.",
+    "url": "https://miladsoft.github.io/ton-connect/",
+    "iconUrl": "https://miladsoft.github.io/ton-connect/icon.png",
+    "bridgeUrl": "https://bridge.tonapi.io/bridge",
+    "termsUrl": "https://miladsoft.github.io/ton-connect//terms",
+    "privacyUrl": "https://miladsoft.github.io/ton-connect//privacy"
+  }

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tonkeeper Integration</title>
+    <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        #ton-connect {
+            margin-top: 20px;
+        }
+        .wallet-info {
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Tonkeeper Integration with JavaScript</h1>
+    
+    <div id="ton-connect"></div>
+    
+    <div id="wallet-info" class="wallet-info" style="display: none;">
+        <h3>Wallet Information</h3>
+        <p><strong>Address:</strong> <span id="address"></span></p>
+        <p><strong>Balance:</strong> <span id="balance"></span></p>
+        <p><strong>Tokens:</strong> <span id="tokens"></span></p>
+        <button id="disconnect">Disconnect</button>
+    </div>
+
+    <button id="send-transaction" style="display: none;">Send Transaction</button>
+
+    <script>
+        // Initialize TON Connect UI
+        const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+            manifestUrl: '/tonconnect-manifest.json',
+            buttonRootId: 'ton-connect'
+        });
+
+        const addressElem = document.getElementById('address');
+        const balanceElem = document.getElementById('balance');
+        const tokensElem = document.getElementById('tokens');
+        const walletInfoDiv = document.getElementById('wallet-info');
+        const sendTransactionBtn = document.getElementById('send-transaction');
+        const disconnectBtn = document.getElementById('disconnect');
+
+        // Handling wallet connection
+        async function connectToWallet() {
+            try {
+                const connectedWallet = await tonConnectUI.connectWallet();
+                console.log('Connected Wallet:', connectedWallet);
+
+                // Display wallet info
+                walletInfoDiv.style.display = 'block';
+                addressElem.textContent = connectedWallet.account.address;
+
+                // Fetch balance (example using TON API)
+                const balance = await fetch(`https://tonapi.io/v1/account/getBalance?address=${connectedWallet.account.address}`);
+                const balanceData = await balance.json();
+                balanceElem.textContent = balanceData.balance;
+
+                // Fetch tokens (example using TON API)
+                const tokens = await fetch(`https://tonapi.io/v1/account/getTokens?address=${connectedWallet.account.address}`);
+                const tokensData = await tokens.json();
+                tokensElem.textContent = tokensData.tokens.map(token => token.symbol).join(', ');
+
+                // Show transaction button
+                sendTransactionBtn.style.display = 'block';
+            } catch (error) {
+                console.error('Error connecting to wallet:', error);
+            }
+        }
+
+        // Handling disconnect
+        disconnectBtn.addEventListener('click', async () => {
+            await tonConnectUI.disconnect();
+            walletInfoDiv.style.display = 'none';
+            sendTransactionBtn.style.display = 'none';
+            console.log('Disconnected');
+        });
+
+        // Handling transaction sending
+        sendTransactionBtn.addEventListener('click', async () => {
+            const transaction = {
+                messages: [
+                    {
+                        address: "EQABa48hjKzg09hN_HjxOic7r8T1PleIy1dRd8NvZ3922MP0", // destination address
+                        amount: "20000000" // Toncoin in nanotons
+                    }
+                ]
+            };
+
+            try {
+                const result = await tonConnectUI.sendTransaction(transaction);
+                console.log('Transaction Result:', result);
+                alert('Transaction sent successfully!');
+            } catch (error) {
+                console.error('Transaction failed:', error);
+                alert('Transaction failed!');
+            }
+        });
+
+        // Call the connect function on page load
+        window.onload = connectToWallet;
+    </script>
+</body>
+</html>
