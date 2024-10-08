@@ -37,8 +37,7 @@
         <h3>Wallet Information</h3>
         <p><strong>Address:</strong> <span id="address"></span></p>
         <p><strong>Balance:</strong> <span id="balance"></span></p>
-        <p><strong>Tokens:</strong> <span id="tokens"></span></p>
-        <button id="disconnect">Disconnect</button>
+         <button id="disconnect">Disconnect</button>
     </div>
 
     <button id="send-transaction" style="display: none;">Send Transaction</button>
@@ -67,15 +66,10 @@
                 walletInfoDiv.style.display = 'block';
                 addressElem.textContent = connectedWallet.account.address;
 
-                // Fetch balance (example using TON API)
-                const balance = await fetch(`https://tonapi.io/v1/account/getBalance?address=${connectedWallet.account.address}`);
-                const balanceData = await balance.json();
-                balanceElem.textContent = balanceData.balance;
-
-                // Fetch tokens (example using TON API)
-                const tokens = await fetch(`https://tonapi.io/v1/account/getTokens?address=${connectedWallet.account.address}`);
-                const tokensData = await tokens.json();
-                tokensElem.textContent = tokensData.tokens.map(token => token.symbol).join(', ');
+                // Fetch balance using v2 API
+                const balanceResponse = await fetch(`https://tonapi.io/v2/accounts/${connectedWallet.account.address}`);
+                const balanceData = await balanceResponse.json();
+                balanceElem.textContent = balanceData.balance || '0';
 
                 // Show transaction button
                 sendTransactionBtn.style.display = 'block';
